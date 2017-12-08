@@ -24,14 +24,16 @@ function activate(context) {
             vscode.window.showInformationMessage('Escape Regular Expression: No editor is active.');
         } else {
             const selections = editor.selections;
-            if (selections.length == 0 || selections[0].isEmpty) {
+            if (selections.length == 0 || (selections.length == 1 && selections[0].isEmpty)) {
                 vscode.window.showInformationMessage('Escape Regular Expression: Nothing selected.');
             } else {
                 editor.edit(builder => {
                     for (const selection of selections) {
-                        let text = editor.document.getText(selection);
-                        let escapedRegex = text.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                        builder.replace(selection, escapedRegex);
+                        if (!selection.isEmpty) {
+                            let text = editor.document.getText(selection);
+                            let escapedRegex = text.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                            builder.replace(selection, escapedRegex);
+                        }
                     }
                 });
             }

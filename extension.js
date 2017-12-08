@@ -17,7 +17,18 @@ function activate(context) {
         // The code you place here will be executed every time your command is executed
 
         // Display a message box to the user
-        vscode.window.showInformationMessage('Hello World!');
+        // vscode.window.showInformationMessage('Hello World!');
+
+        const editor = vscode.window.activeTextEditor;
+        const selections = editor.selections;
+        
+        editor.edit(builder => {
+            for (const selection of selections) {
+                let text = editor.document.getText(selection);
+                let escapedRegex = text.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                builder.replace(selection, escapedRegex);
+            }
+        });
     });
 
     context.subscriptions.push(disposable);

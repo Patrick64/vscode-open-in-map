@@ -1,9 +1,9 @@
 {
-    "name": "escape-regex",
-    "displayName": "escape-regex",
-    "description": "Escape regular expressions",
-    "version": "0.0.1",
-    "publisher": "patrick",
+    "name": "escape-regexp",
+    "displayName": "Escape regular expression",
+    "description": "Escape selected regular expressions, eg ^[test]$ becomes \\^\\[test\\]\\$",
+    "version": "1.0.0",
+    "publisher": "kirbydigital",
     "engines": {
         "vscode": "^1.18.0"
     },
@@ -11,13 +11,13 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello"
+        "onCommand:extension.escapeRegexp"
     ],
     "main": "./extension",
     "contributes": {
         "commands": [{
-            "command": "extension.sayHello",
-            "title": "Hello World"
+            "command": "extension.escapeRegexp",
+            "title": "Escape selected regular expression"
         }]
     },
     "scripts": {

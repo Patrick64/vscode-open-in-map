@@ -15,6 +15,12 @@ let panel;
  * @return  {[type]}       [return description]
  */
 async function openMapInASplitEditor(selectedText, context) {
+    const markers = selectedText.split(/\s+/).filter(str => /^\-?\d+(\.\d+)?\,\-?\d+(\.\d+)?$/.test(str)).map(loc => loc.split(','));
+
+    if (markers.length === 0) {
+        throw new Error("No latitude/longitude values found. Format should be lat,lng eg `51.501476,-0.140634 51.2341098,-2.5815403`");
+    }
+
     if (!panel) {
         panel = vscode.window.createWebviewPanel(
             'webView', // Identifies the type of the webview. Used internally
@@ -37,7 +43,7 @@ async function openMapInASplitEditor(selectedText, context) {
     }
 
     
-    const markers = selectedText.split(/\s+/).filter(str => /^\-?\d+(\.\d+)?\,\-?\d+(\.\d+)?$/.test(str)).map(loc => loc.split(','));
+    
 
     panel.webview.postMessage({ command: 'addMarkers', markers });
 
@@ -57,7 +63,7 @@ function activate(context) {
 
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "escape-regexp" is now active!');
+    // console.log('Congratulations, your extension "escape-regexp" is now active!');
 
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
@@ -77,17 +83,21 @@ function activate(context) {
                 vscode.window.showInformationMessage('Open in map: Nothing selected.');
             } else {
                 editor.edit(builder => {
-                    const locations = [];
-                    for (const selection of selections) {
-                        if (!selection.isEmpty) {
-                            locations.push(editor.document.getText(selection));
+                    try {
+                        const locations = [];
+                        for (const selection of selections) {
+                            if (!selection.isEmpty) {
+                                locations.push(editor.document.getText(selection));
+                            }
                         }
-                    }
-                    const locationsList = locations.join(' ');
-                    if (/^\s+$/.test(locationsList)) {
-                        vscode.window.showInformationMessage('Open in map: empty selection');
-                    } else {
-                        openMapInASplitEditor(locations.join(' '), context);
+                        const locationsList = locations.join(' ');
+                        if (/^\s+$/.test(locationsList)) {
+                            vscode.window.showInformationMessage('Open in map: Nothing selected.');
+                        } else {
+                            openMapInASplitEditor(locations.join(' '), context);
+                        }
+                    } catch (err) {
+                        vscode.window.showInformationMessage('Open in map: ' + err.message);
                     }
                 });
                 

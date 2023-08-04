@@ -20,18 +20,38 @@
         window.addEventListener('message', event => {
             const message = event.data; // The JSON data our extension sent
             switch (message.command) {
-                case 'addMarker':
-                    markers.push([message.lat, message.lng]);
-                    L.marker([message.lat, message.lng]).addTo(mymap);
-                    // mymap.setView([message.lat, message.lng], 13);
-                    mymap.fitBounds(markers, { maxZoom: 12 });
-                    break;
                 case 'addMarkers':
                     console.log(message.markers);
                     markers = [...markers, ...message.markers];
                     message.markers.forEach(marker => {
                         L.marker(marker).addTo(mymap);    
                     });
+                    message.markers.forEach(marker => {
+                        const circleMarker = L.circleMarker(marker, {
+                            radius: 10,
+                            fillColor: "#ff7800",
+                            color: "#3287CC",
+                            weight: 2,
+                            opacity: 1,
+                            fillOpacity: 0
+                        }).addTo(mymap);
+
+                        // Animate the marker
+                        let originalRadius = circleMarker.getRadius();
+                        let originalOpacity = circleMarker.options.fillOpacity;
+                        let expandInterval = setInterval(() => {
+                            let currentRadius = circleMarker.getRadius();
+                            let currentOpacity = circleMarker.options.fillOpacity;
+                            if (currentRadius < originalRadius + 30) {
+                                circleMarker.setRadius(currentRadius + 1);
+                                // circleMarker.setStyle({ fillOpacity: currentOpacity - 0.05 });
+                            } else {
+                                clearInterval(expandInterval);
+                                mymap.removeLayer(circleMarker);
+                            }
+                        }, 50);
+                    });
+
                     // mymap.setView([message.lat, message.lng], 13);
                     mymap.fitBounds(markers, { maxZoom: 12 });
                     break;

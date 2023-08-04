@@ -14,7 +14,7 @@ let panel;
  *
  * @return  {[type]}       [return description]
  */
-async function openMapInASplitEditor(latlng, context) {
+async function openMapInASplitEditor(selectedText, context) {
     if (!panel) {
         panel = vscode.window.createWebviewPanel(
             'webView', // Identifies the type of the webview. Used internally
@@ -22,7 +22,9 @@ async function openMapInASplitEditor(latlng, context) {
             vscode.ViewColumn.Beside, // Editor column to show the new webview panel in.
             {
                 // Enable scripts in the webview
-                enableScripts: true
+                enableScripts: true,
+                // Keep the webview's context even when it's not visible
+                retainContextWhenHidden: true
             }
         );
 
@@ -34,9 +36,8 @@ async function openMapInASplitEditor(latlng, context) {
         panel.webview.html = await getMapHtml();
     }
 
-    // Assume latlng is in the format "lat,lng"
-    let [lat, lng] = latlng.split(',');
-    const markers = latlng.split(/\s+/).filter(str => /^\-?\d+(\.\d+)?\,\-?\d+(\.\d+)?$/.test(str)).map(loc => loc.split(','));
+    
+    const markers = selectedText.split(/\s+/).filter(str => /^\-?\d+(\.\d+)?\,\-?\d+(\.\d+)?$/.test(str)).map(loc => loc.split(','));
 
     panel.webview.postMessage({ command: 'addMarkers', markers });
 

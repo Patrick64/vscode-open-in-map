@@ -82,7 +82,7 @@ function activate(context) {
             if (selections.length == 0 || (selections.length == 1 && selections[0].isEmpty)) {
                 vscode.window.showInformationMessage('Open in map: Nothing selected.');
             } else {
-                editor.edit(builder => {
+                editor.edit(async (builder) => {
                     try {
                         const locations = [];
                         for (const selection of selections) {
@@ -94,7 +94,7 @@ function activate(context) {
                         if (/^\s+$/.test(locationsList)) {
                             vscode.window.showInformationMessage('Open in map: Nothing selected.');
                         } else {
-                            openMapInASplitEditor(locations.join(' '), context);
+                            await openMapInASplitEditor(locations.join(' '), context);
                         }
                     } catch (err) {
                         vscode.window.showInformationMessage('Open in map: ' + err.message);

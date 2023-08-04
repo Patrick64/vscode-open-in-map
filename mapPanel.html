@@ -24,7 +24,8 @@
                     console.log(message.markers);
                     markers = [...markers, ...message.markers];
                     message.markers.forEach(marker => {
-                        L.marker(marker).addTo(mymap);    
+                        const newMarker = L.marker(marker).addTo(mymap);    
+                        newMarker.bindTooltip(`${marker[0]},${marker[1]}`, {permanent: false});
                     });
                     message.markers.forEach(marker => {
                         const circleMarker = L.circleMarker(marker, {

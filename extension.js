@@ -23,8 +23,8 @@ async function openMapInASplitEditor(selectedText, context) {
 
     if (!panel) {
         panel = vscode.window.createWebviewPanel(
-            'webView', // Identifies the type of the webview. Used internally
-            'WebView', // Title of the panel displayed to the user
+            'openInMap', // Identifies the type of the webview. Used internally
+            'Open in map', // Title of the panel displayed to the user
             vscode.ViewColumn.Beside, // Editor column to show the new webview panel in.
             {
                 // Enable scripts in the webview
@@ -38,12 +38,12 @@ async function openMapInASplitEditor(selectedText, context) {
         panel.onDidDispose(() => {
             panel = null;
         }, null, context.subscriptions);
-        
+
         panel.webview.html = await getMapHtml();
     }
 
-    
-    
+
+
 
     panel.webview.postMessage({ command: 'addMarkers', markers });
 
@@ -53,7 +53,7 @@ async function openMapInASplitEditor(selectedText, context) {
 
 async function getMapHtml() {
     const mapHtmlPath = path.join(__dirname, 'mapPanel.html');
-    return  await fs.readFile(mapHtmlPath, 'utf8');
+    return await fs.readFile(mapHtmlPath, 'utf8');
 }
 
 
@@ -100,7 +100,7 @@ function activate(context) {
                         vscode.window.showInformationMessage('Open in map: ' + err.message);
                     }
                 });
-                
+
             }
         }
     });

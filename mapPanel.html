@@ -15,7 +15,7 @@
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(mymap);
 
-        const markers = [];
+        let markers = [];
 
         window.addEventListener('message', event => {
             const message = event.data; // The JSON data our extension sent
@@ -24,7 +24,16 @@
                     markers.push([message.lat, message.lng]);
                     L.marker([message.lat, message.lng]).addTo(mymap);
                     // mymap.setView([message.lat, message.lng], 13);
-                    mymap.fitBounds(markers);
+                    mymap.fitBounds(markers, { maxZoom: 12 });
+                    break;
+                case 'addMarkers':
+                    console.log(message.markers);
+                    markers = [...markers, ...message.markers];
+                    message.markers.forEach(marker => {
+                        L.marker(marker).addTo(mymap);    
+                    });
+                    // mymap.setView([message.lat, message.lng], 13);
+                    mymap.fitBounds(markers, { maxZoom: 12 });
                     break;
             }
         });

@@ -31,7 +31,9 @@ async function openMapInASplitEditor(latlng) {
 
     // Assume latlng is in the format "lat,lng"
     let [lat, lng] = latlng.split(',');
-    panel.webview.postMessage({ command: 'addMarker', lat, lng });
+    const markers = latlng.split(/\s+/).filter(str => /^\-?\d+(\.\d+)?\,\-?\d+(\.\d+)?$/.test(str)).map(loc => loc.split(','));
+
+    panel.webview.postMessage({ command: 'addMarkers', markers });
 }
 
 async function getMapHtml() {
@@ -66,16 +68,20 @@ function activate(context) {
                 vscode.window.showInformationMessage('Open in map: Nothing selected.');
             } else {
                 editor.edit(builder => {
+                    const locations = [];
                     for (const selection of selections) {
                         if (!selection.isEmpty) {
-                            let text = editor.document.getText(selection);
-                            // let escapedRegex = text.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-                            // builder.replace(selection, escapedRegex);
-                            openMapInASplitEditor(text);
+                            locations.push(editor.document.getText(selection));
                         }
-
+                    }
+                    const locationsList = locations.join(' ');
+                    if (/^\s+$/.test(locationsList)) {
+                        vscode.window.showInformationMessage('Open in map: empty selection');
+                    } else {
+                        openMapInASplitEditor(locations.join(' '));
                     }
                 });
+                
             }
         }
     });

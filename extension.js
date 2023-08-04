@@ -2,6 +2,8 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 
+let panel;
+
 /**
  * This function is in vscode extension. It will open the given url in a split editor in vscode.
  *
@@ -10,26 +12,25 @@ const vscode = require('vscode');
  * @return  {[type]}       [return description]
  */
 function openMapInASplitEditor(latlng) {
-    const panel = vscode.window.createWebviewPanel(
-        'webView', // Identifies the type of the webview. Used internally
-        'WebView', // Title of the panel displayed to the user
-        vscode.ViewColumn.Beside, // Editor column to show the new webview panel in.
-        {
-            // Enable scripts in the webview
-            enableScripts: true
-        }
-    );
-    // const query = encodeURIComponent(location);
-    // const url = `https://maps.googleapis.com/maps/api/staticmap?center=${query}&zoom=13&size=600x300&maptype=roadmap
-        // &markers=color:blue%7Clabel:S%7C${query}`;
-    // panel.webview.html = `Iframe for ${url} <iframe src="${url}" frameborder="0" style="width:100%; height:100vh"></iframe>`;
-    // panel.webview.html = `img for ${url} <img src="${url}" />`;
+    if (!panel) {
+        panel = vscode.window.createWebviewPanel(
+            'webView', // Identifies the type of the webview. Used internally
+            'WebView', // Title of the panel displayed to the user
+            vscode.ViewColumn.Beside, // Editor column to show the new webview panel in.
+            {
+                // Enable scripts in the webview
+                enableScripts: true
+            }
+        );
+        panel.webview.html = getMapHtml();
+    }
+
     // Assume latlng is in the format "lat,lng"
     let [lat, lng] = latlng.split(',');
-    panel.webview.html = getMapHtml(lat,lng);
+    panel.webview.postMessage({ command: 'addMarker', lat, lng });
 }
 
-function getMapHtml(lat, lng) {
+function getMapHtml() {
     return `
         <!DOCTYPE html>
         <html>
@@ -43,11 +44,23 @@ function getMapHtml(lat, lng) {
         <body>
             <div id="mapid"></div>
             <script>
-                var mymap = L.map('mapid').setView([${lat}, ${lng}], 13);
+                var mymap = L.map('mapid').setView([0, 0], 12);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 }).addTo(mymap);
-                L.marker([${lat}, ${lng}]).addTo(mymap);
+
+                const markers = [];
+
+                window.addEventListener('message', event => {
+                    const message = event.data; // The JSON data our extension sent
+                    switch (message.command) {
+                        case 'addMarker':
+                            markers.push(message);
+                            L.marker([message.lat, message.lng]).addTo(mymap);
+                            mymap.setView([message.lat, message.lng], 13);
+                            break;
+                    }
+                });
             </script>
         </body>
         </html>

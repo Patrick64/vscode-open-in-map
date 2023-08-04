@@ -21,9 +21,10 @@
             const message = event.data; // The JSON data our extension sent
             switch (message.command) {
                 case 'addMarker':
-                    markers.push(message);
+                    markers.push([message.lat, message.lng]);
                     L.marker([message.lat, message.lng]).addTo(mymap);
-                    mymap.setView([message.lat, message.lng], 13);
+                    // mymap.setView([message.lat, message.lng], 13);
+                    mymap.fitBounds(markers);
                     break;
             }
         });

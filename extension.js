@@ -1,3 +1,6 @@
+const fs = require('fs').promises;
+const path = require('path');
+
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
@@ -11,7 +14,7 @@ let panel;
  *
  * @return  {[type]}       [return description]
  */
-function openMapInASplitEditor(latlng) {
+async function openMapInASplitEditor(latlng) {
     if (!panel) {
         panel = vscode.window.createWebviewPanel(
             'webView', // Identifies the type of the webview. Used internally
@@ -22,7 +25,8 @@ function openMapInASplitEditor(latlng) {
                 enableScripts: true
             }
         );
-        panel.webview.html = getMapHtml();
+        
+        panel.webview.html = await getMapHtml();
     }
 
     // Assume latlng is in the format "lat,lng"
@@ -30,41 +34,9 @@ function openMapInASplitEditor(latlng) {
     panel.webview.postMessage({ command: 'addMarker', lat, lng });
 }
 
-function getMapHtml() {
-    return `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"/>
-            <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-            <style>
-                #mapid { height: 100vh; width: 100%; }
-            </style>
-        </head>
-        <body>
-            <div id="mapid"></div>
-            <script>
-                var mymap = L.map('mapid').setView([0, 0], 12);
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                }).addTo(mymap);
-
-                const markers = [];
-
-                window.addEventListener('message', event => {
-                    const message = event.data; // The JSON data our extension sent
-                    switch (message.command) {
-                        case 'addMarker':
-                            markers.push(message);
-                            L.marker([message.lat, message.lng]).addTo(mymap);
-                            mymap.setView([message.lat, message.lng], 13);
-                            break;
-                    }
-                });
-            </script>
-        </body>
-        </html>
-    `;
+async function getMapHtml() {
+    const mapHtmlPath = path.join(__dirname, 'mapPanel.html');
+    return  await fs.readFile(mapHtmlPath, 'utf8');
 }
 
 

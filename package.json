@@ -1,9 +1,9 @@
 {
-    "name": "escape-regexp",
-    "displayName": "Escape regular expression",
-    "description": "Escape selected regular expressions, eg ^[test]$ becomes \\^\\[test\\]\\$",
+    "name": "open-in-map",
+    "displayName": "Open in map",
+    "description": "",
     "version": "1.0.0",
-    "publisher": "kirbydigital",
+    "publisher": "Patrick Woodcock",
     "engines": {
         "vscode": "^1.18.0"
     },
@@ -11,13 +11,13 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:extension.escapeRegexp"
+        "onCommand:extension.openSelectionInMap"
     ],
     "main": "./extension",
     "contributes": {
         "commands": [{
-            "command": "extension.escapeRegexp",
-            "title": "Escape selected regular expression"
+            "command": "extension.openSelectionInMap",
+            "title": "Open selection in map"
         }]
     },
     "scripts": {

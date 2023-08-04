@@ -1,11 +1,11 @@
-const fs = require('fs').promises;
-const path = require('path');
-
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-const vscode = require('vscode');
 
-let panel;
+import * as fs from 'fs';
+import * as path from 'path';
+import * as vscode from 'vscode';
+
+let panel: vscode.WebviewPanel | null;
 
 /**
  * This function is in vscode extension. It will open the given url in a split editor in vscode.
@@ -14,7 +14,7 @@ let panel;
  *
  * @return  {[type]}       [return description]
  */
-async function openMapInASplitEditor(selectedText, context) {
+async function openMapInASplitEditor(selectedText: string, context: vscode.ExtensionContext) {
     const markers = selectedText.split(/\s+/).filter(str => /^\-?\d+(\.\d+)?\,\-?\d+(\.\d+)?$/.test(str)).map(loc => loc.split(','));
 
     if (markers.length === 0) {
@@ -42,37 +42,27 @@ async function openMapInASplitEditor(selectedText, context) {
         panel.webview.html = await getMapHtml();
     }
 
-
-
-
     panel.webview.postMessage({ command: 'addMarkers', markers });
 
     // Make the panel the active tab
     panel.reveal();
 }
 
-async function getMapHtml() {
-    const mapHtmlPath = path.join(__dirname, 'mapPanel.html');
-    return await fs.readFile(mapHtmlPath, 'utf8');
+async function getMapHtml() : Promise<string>  {
+    const mapHtmlPath = path.join(__dirname, '../mapPanel.html');
+    return await fs.promises.readFile(mapHtmlPath, 'utf8');
 }
 
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-function activate(context) {
-
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
-    // console.log('Congratulations, your extension "escape-regexp" is now active!');
+function activate(context: vscode.ExtensionContext) {
 
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
     let disposable = vscode.commands.registerCommand('extension.openSelectionInMap', function () {
         // The code you place here will be executed every time your command is executed
-
-        // Display a message box to the user
-        // vscode.window.showInformationMessage('Hello World!');
 
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
@@ -96,7 +86,7 @@ function activate(context) {
                         } else {
                             await openMapInASplitEditor(locations.join(' '), context);
                         }
-                    } catch (err) {
+                    } catch (err: any) {
                         vscode.window.showInformationMessage('Open in map: ' + err.message);
                     }
                 });
@@ -107,6 +97,8 @@ function activate(context) {
 
     context.subscriptions.push(disposable);
 }
+
+
 exports.activate = activate;
 
 // this method is called when your extension is deactivated

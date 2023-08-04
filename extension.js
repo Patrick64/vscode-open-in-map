@@ -14,7 +14,7 @@ let panel;
  *
  * @return  {[type]}       [return description]
  */
-async function openMapInASplitEditor(latlng) {
+async function openMapInASplitEditor(latlng, context) {
     if (!panel) {
         panel = vscode.window.createWebviewPanel(
             'webView', // Identifies the type of the webview. Used internally
@@ -25,6 +25,11 @@ async function openMapInASplitEditor(latlng) {
                 enableScripts: true
             }
         );
+
+        // Handle the onDidDispose event
+        panel.onDidDispose(() => {
+            panel = null;
+        }, null, context.subscriptions);
         
         panel.webview.html = await getMapHtml();
     }
@@ -34,6 +39,9 @@ async function openMapInASplitEditor(latlng) {
     const markers = latlng.split(/\s+/).filter(str => /^\-?\d+(\.\d+)?\,\-?\d+(\.\d+)?$/.test(str)).map(loc => loc.split(','));
 
     panel.webview.postMessage({ command: 'addMarkers', markers });
+
+    // Make the panel the active tab
+    panel.reveal();
 }
 
 async function getMapHtml() {
@@ -78,7 +86,7 @@ function activate(context) {
                     if (/^\s+$/.test(locationsList)) {
                         vscode.window.showInformationMessage('Open in map: empty selection');
                     } else {
-                        openMapInASplitEditor(locations.join(' '));
+                        openMapInASplitEditor(locations.join(' '), context);
                     }
                 });
                 

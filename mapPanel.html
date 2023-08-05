@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src %%cspSource%%};">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'unsafe-inline' https://*.openstreetmap.org https://unpkg.com; script-src 'self' %%cspSource%% https://unpkg.com; ">
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
     />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-    <script src="%%mapPanelScriptSrc%%"></script>
+    
     <style>
       #mapid {
         height: 100vh;
@@ -17,8 +17,6 @@
   </head>
   <body>
     <div id="mapid"></div>
-    <script>
-      
-    </script>
+    <script src="%%scriptUri%%"></script>
   </body>
 </html>

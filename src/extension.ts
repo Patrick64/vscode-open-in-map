@@ -49,7 +49,7 @@ async function openMapInASplitEditor(selectedText: string, context: vscode.Exten
 }
 
 async function getMapHtml(panel: any): Promise<string>  {
-    const scriptPathOnDisk = vscode.Uri.file(path.join(__dirname, 'mapPanel.js'));
+    const scriptPathOnDisk = vscode.Uri.file(path.join(__dirname, '../mapPanel.js'));
     const scriptUri = panel.webview.asWebviewUri(scriptPathOnDisk).toString();
 
     
@@ -57,22 +57,22 @@ async function getMapHtml(panel: any): Promise<string>  {
     let htmlContent = await fs.promises.readFile(mapHtmlPath, 'utf8');
 
     // Replace the placeholder with the script tag
-    htmlContent = htmlContent.replace('%%scriptUri%%', scriptUri);
-    htmlContent = htmlContent.replace('%%cspSource%%', panel.webview.cspSource);
+    htmlContent = htmlContent.replaceAll('%%scriptUri%%', scriptUri);
+    htmlContent = htmlContent.replaceAll('%%cspSource%%', panel.webview.cspSource);
 
     return htmlContent;
 
 }
 
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-function activate(context: vscode.ExtensionContext) {
+// This method is called when your extension is activated
+// Your extension is activated the very first time the command is executed
+export function activate(context: vscode.ExtensionContext) {
 
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('extension.openSelectionInMap', function () {
+    let disposable = vscode.commands.registerCommand('openinmap.openSelectionInMap',  () => {
         // The code you place here will be executed every time your command is executed
 
         const editor = vscode.window.activeTextEditor;
@@ -110,9 +110,5 @@ function activate(context: vscode.ExtensionContext) {
 }
 
 
-exports.activate = activate;
-
-// this method is called when your extension is deactivated
-function deactivate() {
-}
-exports.deactivate = deactivate;
+// This method is called when your extension is deactivated
+export function deactivate() {}

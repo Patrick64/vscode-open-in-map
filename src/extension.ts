@@ -12,8 +12,8 @@ function openSelectionInMap(context: vscode.ExtensionContext) {
   } else {
     const selections = editor.selections;
     if (
-      selections.length == 0 ||
-      (selections.length == 1 && selections[0].isEmpty)
+      selections.length === 0 ||
+      (selections.length === 1 && selections[0].isEmpty)
     ) {
       vscode.window.showInformationMessage('Open in map: Nothing selected.');
     } else {

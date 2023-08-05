@@ -46,7 +46,7 @@ export async function openMapInWebview(selectedText: string, context: vscode.Ext
     panel.reveal();
 }
 
-async function getMapHtml(panel: any): Promise<string>  {
+export async function getMapHtml(panel: any): Promise<string>  {
     const scriptPathOnDisk = vscode.Uri.file(path.join(__dirname, '../mapPanel.js'));
     const scriptUri = panel.webview.asWebviewUri(scriptPathOnDisk).toString();
 

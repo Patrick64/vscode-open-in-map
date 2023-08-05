@@ -1,7 +1,8 @@
 {
     "name": "openinmap",
     "displayName": "Open in map",
-    "description": "",
+    "description": "View lat/lng coords on a map in the editor.",
+    "icon": "images/icon.png",
     "version": "1.0.0",
     "publisher": "Patrick Woodcock",
     "engines": {
@@ -10,6 +11,7 @@
     "categories": [
         "Other"
     ],
+    "keywords" : ["map", "latitude", "lat", "location", "osm"],
     "activationEvents": [],
     "main": "./out/extension.js",
     "contributes": {

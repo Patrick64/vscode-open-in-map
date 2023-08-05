@@ -1,5 +1,7 @@
 # Open in Map 🗺️
 
+[Github](https://github.com/Patrick64/vscode-open-in-map)
+
 **Open in Map** is a Visual Studio Code extension that allows developers to visualize geographical coordinates directly within the editor. By simply selecting latitude and longitude values in your code, you can open a map view in a split editor and see the exact locations marked with pins.
 
 ![Screenshot](./images/screenshot.png)

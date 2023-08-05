@@ -11,6 +11,10 @@
     "categories": [
         "Other"
     ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Patrick64/vscode-open-in-map.git"
+    },
     "keywords" : ["map", "latitude", "lat", "location", "osm"],
     "activationEvents": [],
     "main": "./out/extension.js",

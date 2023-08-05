@@ -13,7 +13,7 @@
     "activationEvents": [
         "onCommand:extension.openSelectionInMap"
     ],
-    "main": "./out/extension",
+    "main": "./out/extension.js",
     "contributes": {
         "commands": [
             {

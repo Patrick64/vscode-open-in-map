@@ -39,7 +39,7 @@ async function openMapInASplitEditor(selectedText: string, context: vscode.Exten
             panel = null;
         }, null, context.subscriptions);
 
-        panel.webview.html = await getMapHtml();
+        panel.webview.html = await getMapHtml(panel);
     }
 
     panel.webview.postMessage({ command: 'addMarkers', markers });
@@ -48,9 +48,20 @@ async function openMapInASplitEditor(selectedText: string, context: vscode.Exten
     panel.reveal();
 }
 
-async function getMapHtml() : Promise<string>  {
+async function getMapHtml(panel: any): Promise<string>  {
+    const scriptPathOnDisk = vscode.Uri.file(path.join(__dirname, 'mapPanel.js'));
+    const scriptUri = panel.webview.asWebviewUri(scriptPathOnDisk).toString();
+
+    
     const mapHtmlPath = path.join(__dirname, '../mapPanel.html');
-    return await fs.promises.readFile(mapHtmlPath, 'utf8');
+    let htmlContent = await fs.promises.readFile(mapHtmlPath, 'utf8');
+
+    // Replace the placeholder with the script tag
+    htmlContent = htmlContent.replace('%%scriptUri%%', scriptUri);
+    htmlContent = htmlContent.replace('%%cspSource%%', panel.webview.cspSource);
+
+    return htmlContent;
+
 }
 
 

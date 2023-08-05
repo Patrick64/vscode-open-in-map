@@ -16,7 +16,7 @@
         "commands": [
             {
                 "command": "openinmap.openSelectionInMap",
-                "title": "Open selection in map"
+                "title": "Open in map: Open selected lat/lngs"
             }
         ]
     },

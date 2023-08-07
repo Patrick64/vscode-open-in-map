@@ -13,8 +13,7 @@ let panel: vscode.WebviewPanel | null;
  * @return  {[type]}       [return description]
  */
 export async function openMapInWebview(selectedText: string, context: vscode.ExtensionContext) {
-    const markers = selectedText.split(/\s+/).filter(str => /^\-?\d+(\.\d+)?\,\-?\d+(\.\d+)?$/.test(str)).map(loc => loc.split(','));
-
+    const markers = convertStrToMarkers(selectedText);
     if (markers.length === 0) {
         throw new Error("No latitude/longitude values found. Format should be lat,lng eg `51.501476,-0.140634 51.2341098,-2.5815403`");
     }
@@ -44,6 +43,22 @@ export async function openMapInWebview(selectedText: string, context: vscode.Ext
 
     // Make the panel the active tab
     panel.reveal();
+}
+
+/**
+ * Converts a string of lat/lngs to array of [lat,lng] eg
+ * `50.123,-3.543 51.123, -2.543\n\n 52.68, -1.9876` = [['50.123','-3.543'],['51.123','-2.543'],['52.68','-1.9876']]
+ *
+ * @param   str  string from user
+ *
+ * @return  list of lat/lngs
+ */
+export function convertStrToMarkers(str: string): string[][] {
+    const pairs = str.match(/(\-?\d+(\.\d+)?\s*,\s*\-?\d+(\.\d+)?)/g);
+
+    const result = (pairs ?? []).map(latlng => latlng.split(',').map(num => num.trim()));
+
+    return result;
 }
 
 export async function getMapHtml(panel: any): Promise<string>  {

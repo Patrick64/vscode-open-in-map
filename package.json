@@ -3,7 +3,7 @@
     "displayName": "Open in map",
     "description": "View lat/lng coords on a map in the editor.",
     "icon": "images/icon.png",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "publisher": "kirbydigital",
     "engines": {
         "vscode": "^1.81.0"

@@ -2,7 +2,11 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 import * as sinon from 'sinon';
 import { expect } from 'chai';
-import { openMapInWebview, getMapHtml } from '../../openMapInWebview';
+import {
+  openMapInWebview,
+  getMapHtml,
+  convertStrToMarkers,
+} from '../../openMapInWebview';
 import * as openMapInWebviewModule from '../../openMapInWebview';
 
 suite('Extension Test Suite', () => {
@@ -74,5 +78,69 @@ suite('Extension Test Suite', () => {
     assert(onDidDisposeStub.calledOnce);
 
     createWebviewPanelStub.restore();
+  });
+
+  test('Convert string to lat/lngs', () => {
+    const input = ' -5.1, -1.1  51.1, 9.1 \n -51.2, -9.33  ';
+    const result = convertStrToMarkers(input);
+    expect(result).to.eql([
+      ['-5.1', '-1.1'],
+      ['51.1', '9.1'],
+      ['-51.2', '-9.33'],
+    ]);
+  });
+
+  test('Convert empty string to empty array', () => {
+    const input = '';
+    const result = convertStrToMarkers(input);
+    expect(result).to.eql([]);
+  });
+
+  test('Convert string with invalid format to empty array', () => {
+    const input = 'abc, def ghi, jkl';
+    const result = convertStrToMarkers(input);
+    expect(result).to.eql([]);
+  });
+
+  test('Convert string with mixed valid and invalid format to array of valid pairs', () => {
+    const input = '50.123,-3.543 abc, def \n 51.123, -2.543 ghi, jkl';
+    const result = convertStrToMarkers(input);
+    expect(result).to.eql([
+      ['50.123', '-3.543'],
+      ['51.123', '-2.543'],
+    ]);
+  });
+
+  // Test case: check for proper handling of input with leading/trailing spaces and different number of spaces.
+  test('Convert string to lat/lngs with leading/trailing/multiple spaces', () => {
+    const input =
+      '   50.123, -3.543   51.123,   -2.543  \n\n   52.68,   -1.9876   ';
+    const result = convertStrToMarkers(input);
+    expect(result).to.eql([
+      ['50.123', '-3.543'],
+      ['51.123', '-2.543'],
+      ['52.68', '-1.9876'],
+    ]);
+  });
+
+  // Test case: check for proper handling of input with only one pair.
+  test('Convert string to lat/lngs with one pair', () => {
+    const input = '50.123,-3.543';
+    const result = convertStrToMarkers(input);
+    expect(result).to.eql([['50.123', '-3.543']]);
+  });
+
+  // Test case: check for proper handling of empty input.
+  test('Convert string to lat/lngs with empty string', () => {
+    const input = '';
+    const result = convertStrToMarkers(input);
+    expect(result).to.eql([]);
+  });
+
+  // Test case: check for proper handling of input with only spaces and newlines.
+  test('Convert string to lat/lngs with only spaces and newlines', () => {
+    const input = ' \n \n ';
+    const result = convertStrToMarkers(input);
+    expect(result).to.eql([]);
   });
 });

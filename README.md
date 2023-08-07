@@ -8,7 +8,7 @@
 
 ## Features 🚀
 
-1. **Instant Map Visualization**: Select latitude and longitude values, and see them on a map instantly. Lat/lngs must be comma seperated without a space, you can select multiple lat/lngs.
+1. **Instant Map Visualization**: Select latitude and longitude values, and see them on a map instantly. Lat/lngs must be comma separated, you can select multiple lat/lngs.
 0. **Interactive Map**: Pan, zoom, and explore the map right within VS Code.
 0. **Elegant Animations**: New markers are shown with an expanding circle.
 

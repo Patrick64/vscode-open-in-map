@@ -1,4 +1,3 @@
-
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -6,73 +5,77 @@ import * as vscode from 'vscode';
 let panel: vscode.WebviewPanel | null;
 
 /**
- * This function is in vscode extension. It will open the given url in a split editor in vscode.
- *
- * @param   {[type]}  url  [url description]
- *
- * @return  {[type]}       [return description]
+ * Opens a map with the specified latitude and longitude markers in a split editor within VS Code.
+ * 
+ * @param selectedText - A string containing latitude and longitude values.
+ * @param context - The extension context provided by VS Code.
+ * @throws Will throw an error if the format of the selectedText is not correct.
  */
-export async function openMapInWebview(selectedText: string, context: vscode.ExtensionContext) {
+export async function openMapInWebview(selectedText: string, context: vscode.ExtensionContext): Promise<void> {
     const markers = convertStrToMarkers(selectedText);
+    
     if (markers.length === 0) {
-        throw new Error("No latitude/longitude values found. Format should be lat,lng eg `51.501476,-0.140634 51.2341098,-2.5815403`");
+        throw new Error("No latitude/longitude values found. Format should be lat,lng.");
     }
 
     if (!panel) {
-        panel = vscode.window.createWebviewPanel(
-            'openInMap', // Identifies the type of the webview. Used internally
-            'Open in map', // Title of the panel displayed to the user
-            vscode.ViewColumn.Beside, // Editor column to show the new webview panel in.
-            {
-                // Enable scripts in the webview
-                enableScripts: true,
-                // Keep the webview's context even when it's not visible
-                retainContextWhenHidden: true
-            }
-        );
-
-        // Handle the onDidDispose event
-        panel.onDidDispose(() => {
-            panel = null;
-        }, null, context.subscriptions);
-
-        panel.webview.html = await getMapHtml(panel);
+        initializePanel(context);
     }
 
-    panel.webview.postMessage({ command: 'addMarkers', markers });
-
-    // Make the panel the active tab
-    panel.reveal();
+    if (panel) {
+        panel.webview.postMessage({ command: 'addMarkers', markers });
+        panel.reveal();
+    }
 }
 
 /**
- * Converts a string of lat/lngs to array of [lat,lng] eg
- * `50.123,-3.543 51.123, -2.543\n\n 52.68, -1.9876` = [['50.123','-3.543'],['51.123','-2.543'],['52.68','-1.9876']]
- *
- * @param   str  string from user
- *
- * @return  list of lat/lngs
+ * Converts a string containing latitude and longitude values to an array of [lat, lng] pairs.
+ * 
+ * @param str - A string containing latitude and longitude values.
+ * @returns An array of [lat, lng] pairs.
  */
 export function convertStrToMarkers(str: string): string[][] {
-    const pairs = str.match(/(\-?\d+(\.\d+)?\s*,\s*\-?\d+(\.\d+)?)/g);
+    const regex = /(\-?\d+(\.\d+)?\s*,\s*\-?\d+(\.\d+)?)/g;
+    const pairs = str.match(regex);
 
-    const result = (pairs ?? []).map(latlng => latlng.split(',').map(num => num.trim()));
-
-    return result;
+    return (pairs ?? []).map(latlng => latlng.split(',').map(num => num.trim()));
 }
 
-export async function getMapHtml(panel: any): Promise<string>  {
+/**
+ * Initializes the webview panel to display the map.
+ * 
+ * @param context - The extension context provided by VS Code.
+ */
+export async function initializePanel(context: vscode.ExtensionContext): Promise<void> {
+    panel = vscode.window.createWebviewPanel(
+        'openInMap', 
+        'Open in map', 
+        vscode.ViewColumn.Beside, 
+        {
+            enableScripts: true,
+            retainContextWhenHidden: true
+        }
+    );
+
+    panel.onDidDispose(() => {
+        panel = null;
+    }, null, context.subscriptions);
+
+    panel.webview.html = await getMapHtml(panel);
+}
+
+/**
+ * Generates the HTML content for the webview panel by replacing placeholders with actual script paths.
+ * 
+ * @param panel - The webview panel to generate the HTML content for.
+ * @returns The HTML content as a string.
+ */
+export async function getMapHtml(panel: vscode.WebviewPanel): Promise<string> {
     const scriptPathOnDisk = vscode.Uri.file(path.join(__dirname, '../mapPanel.js'));
     const scriptUri = panel.webview.asWebviewUri(scriptPathOnDisk).toString();
 
-    
     const mapHtmlPath = path.join(__dirname, '../mapPanel.html');
     let htmlContent = await fs.promises.readFile(mapHtmlPath, 'utf8');
 
-    // Replace the placeholder with the script tag
-    htmlContent = htmlContent.replaceAll('%%scriptUri%%', scriptUri);
-    htmlContent = htmlContent.replaceAll('%%cspSource%%', panel.webview.cspSource);
-
-    return htmlContent;
-
+    return htmlContent.replace(/%%scriptUri%%/g, scriptUri).replace(/%%cspSource%%/g, panel.webview.cspSource);
 }
